@@ -1,0 +1,21 @@
+# config.yaml file for example service calculator-service
+# 2 pipelines named test_pl and publish_pl:
+#   test_pl refers to variant buildcalc in the calcblubber.yaml file and will build and run it
+#   publish_pl refers to variant buildcalc in the calcblubber.yaml file and will build and
+#     publish it with the stable tag
+#
+pipelines:
+  test_pl:
+    blubberfile: calcblubber-debian.yaml
+    stages:
+      - name: run-test
+        build: buildcalc
+        run: true
+  publish_pl:
+    blubberfile: calcblubber-debian.yaml
+    stages:
+      - name: production
+        build: buildcalc
+        publish:
+          image:
+            tags: [stable]
