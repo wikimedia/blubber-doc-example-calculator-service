@@ -9,7 +9,7 @@ pipelines:
     blubberfile: calcblubber-debian.yaml
     stages:
       - name: run-test
-        build: buildcalc
+        build: testcalc
         run: true
   publish_pl:
     blubberfile: calcblubber-debian.yaml

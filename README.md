@@ -4,7 +4,6 @@ Service allows for simple calculations, parsing logic from: https://www.dabeaz.c
 Used in the Kubernetes Workshop, currently hosted at:https://docs.google.com/document/d/1bccjDlu3v-6aHTdlMvH1Z3XiJ3lRNGe4hWTMYf3_1Ac/edit
 
 
-
 To run:
 - python3 server.py
   - needs ply library installed

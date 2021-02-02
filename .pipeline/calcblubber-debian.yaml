@@ -1,8 +1,20 @@
 version: v4
 base: docker-registry.wikimedia.org/python3:0.0.2
 runs: { insecurely: true }
-apt: { packages: [python3-ply] }
+apt: { packages: [python3-ply, python3-pytest, python3-requests] }
 variants:
+  testcalc:
+      copies:
+          - from: local
+            source: ./server.py
+            destination: ./server.py
+          - from: local
+            source: ./tests/test01.py
+            destination: ./test01.py
+          - from: local
+            source: ./Entrypoint.sh
+            destination: ./Entrypoint.sh
+      entrypoint: ["./Entrypoint.sh"]
   buildcalc:
       copies:
           - from: local
