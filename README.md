@@ -22,17 +22,24 @@ Or
 To access:
 - curl http://localhost:8080/api?op=2+7 # json answer
 - curl -d "2+9" -X POST http://localhost:8080/api
-- browser to http://localhost:8080 for a form based test interface
+- browser to http://localhost:8080 for a form based test interface # only in testmode
 - http://localhost:8080/healthz for some usage info
 
 To test:
 - python3 tests/test01.py
   - requires service running on localhost:8080
 
-File overview
+Environment variables
+
+CALC_VERSION to overwrite version string
+CALC_TESTMODE to activate a testmode that has the form interface enabled
+   set to ON to turn on
+
+Overview of files
 
 - server.py - the python3 program that implements the service. Uses the built-in http server to serve a simple API. It also has a page that serves health and usage information at /healthz. There is also a form based access that can be used for some simple testing - this function  only works in test builds.
   Note that this implementation needs to generate local files in the working directory for the parser library used and so needs to run with the insecurely: true flag set in blubber.
 - Dockerfile - a file that can be used for local testing - not WMF styled
 - calcblubber-debian.yaml - the YAML input file for blubber to generate a valid WMF styled Dockerfile
 - tests/test01.py - a basic test file for the calculator functionality
+- minikube/ - deployment and service defintions to test locally on minikube

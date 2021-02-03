@@ -9,12 +9,16 @@ from urllib.parse import unquote
 import html
 # time to measure runtime of a request
 import time
+import os
 # the modules used to implment the gramamr
 import ply.yacc as yacc
 import ply.lex as lex
 
 # version number
-version = 0.2
+global version
+version = "0.2"
+global testmode
+testmode = "OFF"
 
 # web server config
 hostName = "0.0.0.0"
@@ -156,6 +160,9 @@ def write_healthz(self):
     self.wfile.write(bytes("CalcVersion=", "utf-8"))
     self.wfile.write(bytes(str(version), "utf-8"))
     self.wfile.write(bytes("<br>", "utf-8"))
+    self.wfile.write(bytes("testmode=", "utf-8"))
+    self.wfile.write(bytes(str(testmode), "utf-8"))
+    self.wfile.write(bytes("<br>", "utf-8"))
     self.wfile.write(bytes("wellformed=", "utf-8"))
     self.wfile.write(bytes(str(wellformed), "utf-8"))
     self.wfile.write(bytes("<br>", "utf-8"))
@@ -195,8 +202,15 @@ class CalcServer(BaseHTTPRequestHandler):
                 outstr = "{"+"\"operation\":\"{}\",\"result\":\"{}\"".format(html.escape(operation),result)+"}"
                 self.wfile.write(bytes(str(outstr), "utf-8"))
         else:
-            write_form(self,"","")
+            if testmode and testmode.upper() == "ON":
+                write_form(self,"","")
+            else:
+                self.send_response(404)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+
         duration = duration + time.time() - start
+
 
     def do_POST(self):
         global duration
@@ -221,21 +235,31 @@ class CalcServer(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(bytes(str(outstr), "utf-8"))
         else:
-            logstr = "Body:\n{0}\n".format(post_data.decode('utf-8'))
-            if len(logstr) > MAXLEN:
-                self.send_response(414)
+            if testmode and testmode.upper() == "ON":
+                logstr = "Body:\n{0}\n".format(post_data.decode('utf-8'))
+                if len(logstr) > MAXLEN:
+                    self.send_response(414)
+                else:
+                    ulogstr = unquote(logstr)
+                    operation = ulogstr.split("=",1)[1]
+                    result = parser.parse(operation)
+                    self.send_response(200)
+                    write_form(self, operation, result)
             else:
-                ulogstr = unquote(logstr)
-                operation = ulogstr.split("=",1)[1]
-                result = parser.parse(operation)
-                self.send_response(200)
-                write_form(self, operation, result)
+                self.send_response(404)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
         duration = duration + time.time() - start
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), CalcServer)
     print("CalcServer started http://%s:%s" % (hostName, serverPort))
     parser = yacc.yacc()
+
+    if os.environ.get('CALC_VERSION'):
+        version = os.environ.get('CALC_VERSION')
+    if  os.environ.get('CALC_TESTMODE'):
+        testmode = os.environ.get('CALC_TESTMODE')
 
     try:
         webServer.serve_forever()

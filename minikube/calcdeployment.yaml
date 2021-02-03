@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calc
+  labels:
+    app: calc
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: calc
+  template:
+    metadata:
+      labels:
+        app: calc
+    spec:
+      containers:
+       - name: calc
+         image: docker-registry.wikimedia.org/wikimedia/blubber-doc-example-calculator-service:stable
+         imagePullPolicy: IfNotPresent
+         resources:
+           requests:
+             memory: "64Mi"
+             cpu: "100m"
+           limits:
+             memory: "64Mi"
+             cpu: "100m"
